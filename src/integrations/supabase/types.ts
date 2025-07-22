@@ -59,6 +59,120 @@ export type Database = {
         }
         Relationships: []
       }
+      clothing_usage: {
+        Row: {
+          clothing_item_id: string | null
+          created_at: string
+          id: string
+          last_worn: string | null
+          total_wears: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clothing_item_id?: string | null
+          created_at?: string
+          id?: string
+          last_worn?: string | null
+          total_wears?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clothing_item_id?: string | null
+          created_at?: string
+          id?: string
+          last_worn?: string | null
+          total_wears?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clothing_usage_clothing_item_id_fkey"
+            columns: ["clothing_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outfit_history: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          outfit_id: string | null
+          updated_at: string
+          user_id: string
+          worn_date: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          outfit_id?: string | null
+          updated_at?: string
+          user_id: string
+          worn_date: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          outfit_id?: string | null
+          updated_at?: string
+          user_id?: string
+          worn_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outfit_history_outfit_id_fkey"
+            columns: ["outfit_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_outfits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outfit_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          outfit_id: string | null
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          outfit_id?: string | null
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          outfit_id?: string | null
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outfit_ratings_outfit_id_fkey"
+            columns: ["outfit_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_outfits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

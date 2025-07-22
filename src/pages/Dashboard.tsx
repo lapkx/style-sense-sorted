@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Calendar } from 'lucide-react';
+import { Plus, Calendar, BarChart3 } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { ClothingUpload } from '@/components/clothing/ClothingUpload';
 import { ClothingGrid } from '@/components/clothing/ClothingGrid';
 import { MyWeek } from '@/components/outfit/MyWeek';
+import OutfitAnalytics from '@/components/analytics/OutfitAnalytics';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('closet');
@@ -19,6 +20,14 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Your Virtual Closet</h1>
             <div className="flex items-center space-x-3">
+              <Button 
+                variant="outline"
+                onClick={() => setActiveTab('analytics')}
+                className="flex items-center space-x-2"
+              >
+                <BarChart3 className="h-4 w-4" />
+                <span>Analytics</span>
+              </Button>
               <Button 
                 variant="outline"
                 onClick={() => setActiveTab('week')}
@@ -38,9 +47,10 @@ const Dashboard = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="closet">My Closet</TabsTrigger>
               <TabsTrigger value="week">My Week</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="upload">Add Item</TabsTrigger>
             </TabsList>
             
@@ -52,6 +62,10 @@ const Dashboard = () => {
 
             <TabsContent value="week" className="space-y-4">
               <MyWeek />
+            </TabsContent>
+
+            <TabsContent value="analytics" className="space-y-4">
+              <OutfitAnalytics />
             </TabsContent>
             
             <TabsContent value="upload" className="space-y-4">

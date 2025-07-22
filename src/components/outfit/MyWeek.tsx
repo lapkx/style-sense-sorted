@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useOutfitTracking } from '@/hooks/useOutfitTracking';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Calendar, Sparkles, Plus, X } from 'lucide-react';
@@ -39,6 +40,7 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { markOutfitAsWorn } = useOutfitTracking();
 
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 }); // Monday
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -311,16 +313,26 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
                           </Badge>
                         )}
 
-                        {/* Remove Button */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full text-destructive hover:text-destructive"
-                          onClick={() => removeOutfit(day)}
-                        >
-                          <X className="h-3 w-3 mr-1" />
-                          Remove
-                        </Button>
+                        {/* Action Buttons */}
+                        <div className="space-y-1">
+                          <Button
+                            variant="default"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => markOutfitAsWorn(outfit.id, day)}
+                          >
+                            Mark as Worn
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full text-destructive hover:text-destructive"
+                            onClick={() => removeOutfit(day)}
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Remove
+                          </Button>
+                        </div>
                       </div>
                     ) : (
                       <div className="space-y-3 text-center">
