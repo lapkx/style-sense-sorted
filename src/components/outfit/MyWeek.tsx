@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Calendar, Sparkles, Plus, X } from 'lucide-react';
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
+import { ColorMatcher } from '@/utils/colorCombinations';
 
 interface ClothingItem {
   id: string;
@@ -95,15 +96,60 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
 
   const generateAIOutfit = async (date: Date) => {
     try {
-      // Simple AI logic: pick one item from each category
-      const categories = ['T-Shirts', 'Pants', 'Shoes'];
-      const selectedItems: string[] = [];
+      // Get current season and default occasion
+      const season = format(date, 'MMM'); // Basic season detection
+      const occasion = 'Casual'; // Default to casual
+
+      // Enhanced AI logic with color matching
+      const categories = ['T-Shirts', 'Shirts', 'Pants', 'Jeans', 'Shoes', 'Sneakers'];
+      const selectedItems: ClothingItem[] = [];
       
-      for (const category of categories) {
-        const categoryItems = clothingItems.filter(item => item.category === category);
-        if (categoryItems.length > 0) {
-          const randomItem = categoryItems[Math.floor(Math.random() * categoryItems.length)];
-          selectedItems.push(randomItem.id);
+      // Step 1: Pick a base item (top)
+      const topCategories = ['T-Shirts', 'Shirts'];
+      const availableTops = clothingItems.filter(item => 
+        topCategories.includes(item.category)
+      );
+      
+      if (availableTops.length > 0) {
+        const baseTop = availableTops[Math.floor(Math.random() * availableTops.length)];
+        selectedItems.push(baseTop);
+        
+        // Step 2: Find compatible bottom based on color
+        const bottomCategories = ['Pants', 'Jeans', 'Shorts'];
+        const availableBottoms = clothingItems.filter(item => 
+          bottomCategories.includes(item.category)
+        );
+        
+        if (availableBottoms.length > 0) {
+          // Filter bottoms by color compatibility
+          const compatibleBottoms = availableBottoms.filter(bottom => {
+            if (!baseTop.color || !bottom.color) return true; // No color info, assume compatible
+            return ColorMatcher.areColorsCompatible(baseTop.color, bottom.color, occasion);
+          });
+          
+          const selectedBottoms = compatibleBottoms.length > 0 ? compatibleBottoms : availableBottoms;
+          const bottom = selectedBottoms[Math.floor(Math.random() * selectedBottoms.length)];
+          selectedItems.push(bottom);
+        }
+        
+        // Step 3: Add shoes that work with the outfit
+        const shoeCategories = ['Shoes', 'Sneakers', 'Boots'];
+        const availableShoes = clothingItems.filter(item => 
+          shoeCategories.includes(item.category)
+        );
+        
+        if (availableShoes.length > 0) {
+          const outfitColors = selectedItems.map(item => item.color).filter(Boolean);
+          const compatibleShoes = availableShoes.filter(shoe => {
+            if (!shoe.color) return true;
+            return outfitColors.some(color => 
+              ColorMatcher.areColorsCompatible(color!, shoe.color!, occasion)
+            );
+          });
+          
+          const selectedShoes = compatibleShoes.length > 0 ? compatibleShoes : availableShoes;
+          const shoe = selectedShoes[Math.floor(Math.random() * selectedShoes.length)];
+          selectedItems.push(shoe);
         }
       }
 
@@ -116,11 +162,16 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
         return;
       }
 
-      await saveOutfit(date, selectedItems, "AI-generated outfit", true);
+      // Calculate color harmony score
+      const colors = selectedItems.map(item => item.color).filter(Boolean) as string[];
+      const colorScore = ColorMatcher.scoreOutfitColors(colors, occasion, season);
+      
+      const itemIds = selectedItems.map(item => item.id);
+      await saveOutfit(date, itemIds, `AI-generated outfit (Color harmony: ${colorScore}%)`, true);
       
       toast({
         title: "AI Outfit Generated!",
-        description: "A stylish outfit has been created for you.",
+        description: `A stylish outfit with ${colorScore}% color harmony has been created for you.`,
       });
     } catch (error: any) {
       toast({
