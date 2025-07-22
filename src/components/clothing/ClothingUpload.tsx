@@ -396,8 +396,6 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
     </SelectItem>
   ))}
 </SelectContent>
-                  ))}
-                </SelectContent>
               </Select>
             </div>
           </div>
