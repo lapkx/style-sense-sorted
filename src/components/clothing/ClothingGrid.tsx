@@ -15,8 +15,8 @@ interface ClothingItem {
   category: string;
   brand?: string;
   color?: string;
-  season?: string;
-  occasion?: string;
+  seasons?: string[];
+  occasions?: string[];
   image_url: string;
   notes?: string;
   created_at: string;
@@ -97,13 +97,13 @@ export const ClothingGrid = ({ refreshTrigger }: ClothingGridProps) => {
                          item.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.color?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !filterCategory || item.category === filterCategory;
-    const matchesSeason = !filterSeason || item.season === filterSeason;
+    const matchesSeason = !filterSeason || item.seasons?.includes(filterSeason);
     
     return matchesSearch && matchesCategory && matchesSeason;
   });
 
   const categories = [...new Set(items.map(item => item.category))];
-  const seasons = [...new Set(items.map(item => item.season).filter(Boolean))];
+  const seasons = [...new Set(items.flatMap(item => item.seasons || []))].filter(Boolean);
 
   if (loading) {
     return (
@@ -227,16 +227,16 @@ export const ClothingGrid = ({ refreshTrigger }: ClothingGridProps) => {
                 <Badge variant="secondary" className="text-xs">
                   {item.category}
                 </Badge>
-                {item.season && (
-                  <Badge variant="outline" className="text-xs">
-                    {item.season}
+                {item.seasons?.map((season, index) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {season}
                   </Badge>
-                )}
-                {item.occasion && (
-                  <Badge variant="outline" className="text-xs">
-                    {item.occasion}
+                ))}
+                {item.occasions?.map((occasion, index) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {occasion}
                   </Badge>
-                )}
+                ))}
               </div>
             </CardFooter>
           </Card>

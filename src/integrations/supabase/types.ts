@@ -24,8 +24,8 @@ export type Database = {
           image_url: string
           name: string
           notes: string | null
-          occasion: string | null
-          season: string | null
+          occasions: string[] | null
+          seasons: string[] | null
           updated_at: string
           user_id: string
         }
@@ -38,8 +38,8 @@ export type Database = {
           image_url: string
           name: string
           notes?: string | null
-          occasion?: string | null
-          season?: string | null
+          occasions?: string[] | null
+          seasons?: string[] | null
           updated_at?: string
           user_id: string
         }
@@ -52,8 +52,8 @@ export type Database = {
           image_url?: string
           name?: string
           notes?: string | null
-          occasion?: string | null
-          season?: string | null
+          occasions?: string[] | null
+          seasons?: string[] | null
           updated_at?: string
           user_id?: string
         }

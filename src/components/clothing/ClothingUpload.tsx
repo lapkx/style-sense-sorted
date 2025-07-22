@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { MultiSelect, Option } from '@/components/ui/multi-select';
 import { Camera, Upload, X, Loader2, Sparkles, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,8 +41,24 @@ const CATEGORIES = [
   'Other'
 ];
 
-const SEASONS = ['Spring', 'Summer', 'Fall', 'Winter', 'All Year'];
-const OCCASIONS = ['Casual', 'Work', 'Formal', 'Gym', 'Party', 'Other'];
+const SEASON_OPTIONS: Option[] = [
+  { label: 'Spring', value: 'Spring' },
+  { label: 'Summer', value: 'Summer' },
+  { label: 'Fall', value: 'Fall' },
+  { label: 'Winter', value: 'Winter' },
+  { label: 'All Year', value: 'All Year' },
+];
+
+const OCCASION_OPTIONS: Option[] = [
+  { label: 'Casual', value: 'Casual' },
+  { label: 'Work', value: 'Work' },
+  { label: 'Formal', value: 'Formal' },
+  { label: 'Gym', value: 'Gym' },
+  { label: 'Party', value: 'Party' },
+  { label: 'Date Night', value: 'Date Night' },
+  { label: 'Travel', value: 'Travel' },
+  { label: 'Other', value: 'Other' },
+];
 
 export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -54,8 +71,8 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
     category: '',
     brand: '',
     color: '',
-    season: '',
-    occasion: '',
+    seasons: [] as string[],
+    occasions: [] as string[],
     notes: ''
   });
 
@@ -177,8 +194,8 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
           category: formData.category,
           brand: formData.brand || null,
           color: formData.color || null,
-          season: formData.season || null,
-          occasion: formData.occasion || null,
+          seasons: formData.seasons.length > 0 ? formData.seasons : null,
+          occasions: formData.occasions.length > 0 ? formData.occasions : null,
           notes: formData.notes || null,
           image_url: imageUrl
         });
@@ -199,8 +216,8 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
         category: '',
         brand: '',
         color: '',
-        season: '',
-        occasion: '',
+        seasons: [],
+        occasions: [],
         notes: ''
       });
 
@@ -399,40 +416,22 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="season">Season</Label>
-              <Select
-                value={formData.season}
-                onValueChange={(value) => setFormData({ ...formData, season: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select season" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SEASONS.map((season) => (
-                    <SelectItem key={season} value={season}>
-                      {season}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="seasons">Seasons</Label>
+              <MultiSelect
+                options={SEASON_OPTIONS}
+                selected={formData.seasons}
+                onChange={(selected) => setFormData({ ...formData, seasons: selected })}
+                placeholder="Select seasons..."
+              />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="occasion">Occasion</Label>
-              <Select
-                value={formData.occasion}
-                onValueChange={(value) => setFormData({ ...formData, occasion: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select occasion" />
-                </SelectTrigger>
-                <SelectContent>
-                  {OCCASIONS.map((occasion) => (
-                    <SelectItem key={occasion} value={occasion}>
-                      {occasion}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="occasions">Occasions</Label>
+              <MultiSelect
+                options={OCCASION_OPTIONS}
+                selected={formData.occasions}
+                onChange={(selected) => setFormData({ ...formData, occasions: selected })}
+                placeholder="Select occasions..."
+              />
             </div>
           </div>
 

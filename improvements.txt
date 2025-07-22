@@ -1,5 +1,5 @@
-1) Have a multiselect for the seasons when adding an item.
-2) Have a multiselect for the occasions when adding an item.
+1) ~~Have a multiselect for the seasons when adding an item.~~ ✅
+2) ~~Have a multiselect for the occasions when adding an item.~~ ✅
 3) Once the picture of the item is uploaded it should autofill category and color. 
 4) Next to add item button there should be a button regarding to My Week which has monday to sunday with dates on top, and the user can either create their outfit or there would be button where Ai or some algorithm decides the outfit.
 5) There is also another file which will help the ai/algorithm with color combinations, having this seperate would be good.
