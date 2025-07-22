@@ -389,11 +389,13 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
+<SelectContent>
+  {CATEGORIES.filter((category) => category !== '').map((category) => (
+    <SelectItem key={category} value={category}>
+      {category}
+    </SelectItem>
+  ))}
+</SelectContent>
                   ))}
                 </SelectContent>
               </Select>
