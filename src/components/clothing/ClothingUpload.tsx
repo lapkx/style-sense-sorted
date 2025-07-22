@@ -5,13 +5,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Camera, Upload, X, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Camera, Upload, X, Loader2, Sparkles, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 interface ClothingUploadProps {
   onUploadComplete?: () => void;
+}
+
+interface AIAnalysis {
+  detectedCategory: string;
+  detectedBrand?: string;
+  confidence: number;
+  suggestedName: string;
+  fallback?: boolean;
 }
 
 const CATEGORIES = [
@@ -38,6 +47,8 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -53,10 +64,64 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
 
+  const analyzeImage = async (file: File) => {
+    setAnalyzing(true);
+    try {
+      // Convert file to base64
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          const base64Data = result.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+          resolve(base64Data);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Call our AI analysis edge function
+      const { data, error } = await supabase.functions.invoke('analyze-clothing', {
+        body: { imageBase64: base64 }
+      });
+
+      if (error) throw error;
+
+      setAiAnalysis(data);
+      
+      // Auto-fill form with AI suggestions
+      if (data.suggestedName && !formData.name) {
+        setFormData(prev => ({ ...prev, name: data.suggestedName }));
+      }
+      if (data.detectedCategory && !formData.category) {
+        setFormData(prev => ({ ...prev, category: data.detectedCategory }));
+      }
+      if (data.detectedBrand && !formData.brand) {
+        setFormData(prev => ({ ...prev, brand: data.detectedBrand }));
+      }
+
+      toast({
+        title: "AI Analysis Complete!",
+        description: `Detected: ${data.detectedCategory}${data.detectedBrand ? ` by ${data.detectedBrand}` : ''}`,
+      });
+    } catch (error: any) {
+      console.error('AI analysis failed:', error);
+      toast({
+        title: "AI analysis failed",
+        description: "Don't worry, you can still fill out the details manually.",
+        variant: "destructive"
+      });
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
   const handleImageSelect = (file: File) => {
     setSelectedImage(file);
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
+    setAiAnalysis(null);
+    
+    // Trigger AI analysis automatically
+    analyzeImage(file);
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,6 +193,7 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
       // Reset form
       setSelectedImage(null);
       setPreviewUrl(null);
+      setAiAnalysis(null);
       setFormData({
         name: '',
         category: '',
@@ -226,6 +292,57 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
               onChange={handleFileSelect}
             />
           </div>
+
+          {/* AI Analysis Results */}
+          {(analyzing || aiAnalysis) && (
+            <Card className="bg-muted/50">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span className="font-medium text-sm">AI Analysis</span>
+                </div>
+                
+                {analyzing ? (
+                  <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Analyzing your clothing item...</span>
+                  </div>
+                ) : aiAnalysis ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="default">{aiAnalysis.detectedCategory}</Badge>
+                        {aiAnalysis.detectedBrand && (
+                          <Badge variant="secondary">{aiAnalysis.detectedBrand}</Badge>
+                        )}
+                        {aiAnalysis.fallback && (
+                          <Badge variant="outline" className="text-xs">Fallback Mode</Badge>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {Math.round(aiAnalysis.confidence * 100)}% confident
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      AI has pre-filled the form with detected information. You can edit any field as needed.
+                    </p>
+                    {selectedImage && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => analyzeImage(selectedImage)}
+                        className="text-xs"
+                      >
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        Re-analyze
+                      </Button>
+                    )}
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Form Fields */}
           <div className="grid grid-cols-2 gap-4">
