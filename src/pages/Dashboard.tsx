@@ -4,9 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { ClothingUpload } from '@/components/clothing/ClothingUpload';
+import { ClothingGrid } from '@/components/clothing/ClothingGrid';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('closet');
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -31,28 +33,17 @@ const Dashboard = () => {
             </TabsList>
             
             <TabsContent value="closet" className="space-y-4">
-              <div className="text-center py-12">
-                <div className="space-y-4">
-                  <h2 className="text-xl font-semibold text-muted-foreground">
-                    Your closet is empty
-                  </h2>
-                  <p className="text-muted-foreground">
-                    Start building your digital wardrobe by adding your first clothing item
-                  </p>
-                  <Button 
-                    onClick={() => setActiveTab('upload')}
-                    className="mt-4"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Your First Item
-                  </Button>
-                </div>
-              </div>
+              <ClothingGrid 
+                refreshTrigger={refreshTrigger}
+              />
             </TabsContent>
             
             <TabsContent value="upload" className="space-y-4">
               <ClothingUpload 
-                onUploadComplete={() => setActiveTab('closet')}
+                onUploadComplete={() => {
+                  setActiveTab('closet');
+                  setRefreshTrigger(prev => prev + 1);
+                }}
               />
             </TabsContent>
           </Tabs>
