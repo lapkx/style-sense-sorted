@@ -89,6 +89,39 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_outfits: {
+        Row: {
+          clothing_item_ids: string[]
+          created_at: string
+          date: string
+          id: string
+          is_ai_generated: boolean | null
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clothing_item_ids: string[]
+          created_at?: string
+          date: string
+          id?: string
+          is_ai_generated?: boolean | null
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clothing_item_ids?: string[]
+          created_at?: string
+          date?: string
+          id?: string
+          is_ai_generated?: boolean | null
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
