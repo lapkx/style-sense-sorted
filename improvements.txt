@@ -12,7 +12,13 @@
    - ~~"Haven't worn in a while" suggestions~~ ✅
    - ~~Outfit rating system to learn preferences~~ ✅
 
-7) **Weather Integration**
+7) ~~**Search & Filter Functionality**~~ ✅
+   - ~~Search by name, brand, color, or category~~ ✅
+   - ~~Filter by seasons, occasions, categories~~ ✅ 
+   - ~~Sort options (newest, most worn, alphabetical)~~ ✅
+   - ~~Quick filter chips for common searches~~ ✅
+
+8) **Weather Integration**
    - Connect with weather API to suggest weather-appropriate outfits
    - Temperature-based filtering (light jackets for cool weather, shorts for hot days)
    - Rain/snow outfit suggestions
