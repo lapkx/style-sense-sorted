@@ -15,6 +15,15 @@ const CLOTHING_CATEGORIES = {
   'hat': 'Accessories', 'cap': 'Accessories', 'belt': 'Accessories', 'watch': 'Accessories'
 }
 
+// Color keywords mapping
+const COLOR_KEYWORDS = {
+  'black': 'Black', 'white': 'White', 'gray': 'Gray', 'grey': 'Gray',
+  'red': 'Red', 'blue': 'Blue', 'green': 'Green', 'yellow': 'Yellow',
+  'orange': 'Orange', 'purple': 'Purple', 'pink': 'Pink', 'brown': 'Brown',
+  'navy': 'Navy Blue', 'maroon': 'Maroon', 'olive': 'Olive Green',
+  'beige': 'Beige', 'tan': 'Tan', 'khaki': 'Khaki', 'cream': 'Cream'
+}
+
 const CLOTHING_BRANDS = [
   'Nike', 'Adidas', 'Puma', 'Under Armour', 'Levi\'s', 'Calvin Klein', 
   'Tommy Hilfiger', 'Ralph Lauren', 'Gap', 'Zara', 'H&M', 'Uniqlo'
@@ -72,6 +81,7 @@ function extractClothingInfo(visionResult: any) {
 
   // Extract clothing category from labels and objects
   let detectedCategory = 'Other'
+  let detectedColor = null
   let confidence = 0
   
   // Check object annotations
@@ -89,15 +99,26 @@ function extractClothingInfo(visionResult: any) {
     }
   }
 
-  // Check label annotations
+  // Check label annotations for category and color
   if (annotations.labelAnnotations) {
     for (const label of annotations.labelAnnotations) {
       const labelName = label.description.toLowerCase()
+      
+      // Check for clothing category
       for (const [keyword, category] of Object.entries(CLOTHING_CATEGORIES)) {
         if (labelName.includes(keyword)) {
           if (label.score > confidence) {
             detectedCategory = category
             confidence = label.score
+          }
+        }
+      }
+      
+      // Check for color
+      for (const [keyword, color] of Object.entries(COLOR_KEYWORDS)) {
+        if (labelName.includes(keyword)) {
+          if (!detectedColor || label.score > 0.7) { // Only override if confident
+            detectedColor = color
           }
         }
       }
@@ -107,6 +128,7 @@ function extractClothingInfo(visionResult: any) {
   return {
     detectedCategory,
     detectedBrand,
+    detectedColor,
     confidence: Math.round(confidence * 100) / 100,
     suggestedName: detectedBrand ? `${detectedBrand} ${detectedCategory}` : detectedCategory,
     rawData: annotations
@@ -138,6 +160,7 @@ serve(async (req) => {
       analysis = {
         detectedCategory: 'T-Shirts',
         detectedBrand: null,
+        detectedColor: null,
         confidence: 0.5,
         suggestedName: 'Clothing Item',
         fallback: true

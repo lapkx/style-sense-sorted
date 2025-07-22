@@ -19,6 +19,7 @@ interface ClothingUploadProps {
 interface AIAnalysis {
   detectedCategory: string;
   detectedBrand?: string;
+  detectedColor?: string;
   confidence: number;
   suggestedName: string;
   fallback?: boolean;
@@ -114,10 +115,13 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
       if (data.detectedBrand && !formData.brand) {
         setFormData(prev => ({ ...prev, brand: data.detectedBrand }));
       }
+      if (data.detectedColor && !formData.color) {
+        setFormData(prev => ({ ...prev, color: data.detectedColor }));
+      }
 
       toast({
         title: "AI Analysis Complete!",
-        description: `Detected: ${data.detectedCategory}${data.detectedBrand ? ` by ${data.detectedBrand}` : ''}`,
+        description: `Detected: ${data.detectedCategory}${data.detectedBrand ? ` by ${data.detectedBrand}` : ''}${data.detectedColor ? ` in ${data.detectedColor}` : ''}`,
       });
     } catch (error: any) {
       console.error('AI analysis failed:', error);
@@ -331,6 +335,9 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
                         <Badge variant="default">{aiAnalysis.detectedCategory}</Badge>
                         {aiAnalysis.detectedBrand && (
                           <Badge variant="secondary">{aiAnalysis.detectedBrand}</Badge>
+                        )}
+                        {aiAnalysis.detectedColor && (
+                          <Badge variant="outline">{aiAnalysis.detectedColor}</Badge>
                         )}
                         {aiAnalysis.fallback && (
                           <Badge variant="outline" className="text-xs">Fallback Mode</Badge>
