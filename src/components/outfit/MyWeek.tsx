@@ -243,13 +243,19 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
     }
   };
 
-  const removeOutfit = async (date: Date) => {
+  const removeOutfit = async (date: Date, isAiGenerated: boolean) => {
     try {
-      const { error } = await supabase
+      let query = supabase
         .from('weekly_outfits')
         .delete()
         .eq('user_id', user?.id)
         .eq('date', format(date, 'yyyy-MM-dd'));
+
+      if (isAiGenerated) {
+        query = query.eq('is_ai_generated', true);
+      }
+
+      const { error } = await query;
 
       if (error) throw error;
       await fetchData();
@@ -374,7 +380,7 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
                             variant="ghost"
                             size="sm"
                             className="w-full text-destructive hover:text-destructive"
-                            onClick={() => removeOutfit(day)}
+                            onClick={() => removeOutfit(day, outfit.is_ai_generated)}
                           >
                             <X className="h-3 w-3 mr-1" />
                             Remove
