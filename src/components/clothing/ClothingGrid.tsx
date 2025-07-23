@@ -8,6 +8,9 @@ import { Trash2, Edit } from 'lucide-react';
 import { ClothingSearch } from './ClothingSearch';
 import { useClothingSearch } from '@/hooks/useClothingSearch';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface ClothingGridProps {
   refreshTrigger?: number;
@@ -28,7 +31,41 @@ export const ClothingGrid = ({ refreshTrigger }: ClothingGridProps) => {
   } = useClothingSearch();
   
   const [deleteDialogItem, setDeleteDialogItem] = useState<{id: string, imageUrl: string} | null>(null);
+  const [editItem, setEditItem] = useState<any | null>(null);
   const { toast } = useToast();
+
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editItem) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('clothing_items')
+        .update({
+          name: editItem.name,
+          brand: editItem.brand,
+          color: editItem.color,
+          category: editItem.category,
+          seasons: editItem.seasons,
+          occasions: editItem.occasions,
+        })
+        .eq('id', editItem.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Item updated",
+        description: "The clothing item has been updated.",
+      });
+      setEditItem(null);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to update the item",
+        variant: "destructive",
+      });
+    }
+  };
 
   const deleteItem = async (itemId: string, imageUrl: string) => {
     try {
@@ -144,13 +181,18 @@ export const ClothingGrid = ({ refreshTrigger }: ClothingGridProps) => {
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="flex space-x-1">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        className="h-8 w-8 p-0"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="h-8 w-8 p-0"
+                            onClick={() => setEditItem(item)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                      </Dialog>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
@@ -222,6 +264,37 @@ export const ClothingGrid = ({ refreshTrigger }: ClothingGridProps) => {
           })}
         </div>
       )}
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editItem} onOpenChange={(open) => !open && setEditItem(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Item</DialogTitle>
+          </DialogHeader>
+          {editItem && (
+            <form onSubmit={handleUpdate} className="space-y-4">
+              <div>
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" value={editItem.name} onChange={(e) => setEditItem({...editItem, name: e.target.value})} />
+              </div>
+              <div>
+                <Label htmlFor="brand">Brand</Label>
+                <Input id="brand" value={editItem.brand} onChange={(e) => setEditItem({...editItem, brand: e.target.value})} />
+              </div>
+              <div>
+                <Label htmlFor="color">Color</Label>
+                <Input id="color" value={editItem.color} onChange={(e) => setEditItem({...editItem, color: e.target.value})} />
+              </div>
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Input id="category" value={editItem.category} onChange={(e) => setEditItem({...editItem, category: e.target.value})} />
+              </div>
+              {/* TODO: Add multi-select for seasons and occasions */}
+              <Button type="submit">Save Changes</Button>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
