@@ -96,9 +96,12 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
   };
 
   const getOutfitForDay = (date: Date): WeeklyOutfit | undefined => {
-    return outfits.find(outfit => 
-      isSameDay(new Date(outfit.date), date)
-    );
+    return outfits.find(outfit => {
+      // Fix: Parse date string as local time to avoid timezone issues
+      const [year, month, day] = outfit.date.split('-').map(Number);
+      const outfitDate = new Date(year, month - 1, day);
+      return isSameDay(outfitDate, date);
+    });
   };
 
   const generateAIOutfit = async (date: Date) => {
