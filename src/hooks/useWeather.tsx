@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface WeatherData {
   temperature: number;
@@ -79,34 +79,49 @@ export const useWeather = () => {
     setError(null);
 
     try {
-      // Using OpenWeatherMap API - user will need to add API key to Supabase secrets
-      const API_KEY = 'demo_key'; // This will be replaced with actual key from secrets
-      
-      // For demo purposes, we'll simulate weather data
-      // In production, this would call the actual API
-      const mockCurrentWeather: WeatherData = {
-        temperature: Math.floor(Math.random() * 30) + 5, // 5-35°C
-        condition: 'clear sky',
-        description: 'Clear sky',
-        humidity: 65,
-        windSpeed: 5.2,
-        icon: '01d',
-        location: 'Your Location'
-      };
+      // Using OpenWeatherMap API - Make sure to set VITE_OPENWEATHERMAP_API_KEY in your Supabase project's secrets
+      const apiKey = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
+      if (!apiKey) {
+        throw new Error("OpenWeatherMap API key not found. Please set VITE_OPENWEATHERMAP_API_KEY in your Supabase project's secrets.");
+      }
 
-      const mockForecast: WeatherForecast[] = Array.from({ length: 7 }, (_, i) => ({
-        date: new Date(Date.now() + i * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        temperature: {
-          min: Math.floor(Math.random() * 15) + 5,
-          max: Math.floor(Math.random() * 15) + 20
-        },
-        condition: ['clear sky', 'few clouds', 'scattered clouds', 'light rain'][Math.floor(Math.random() * 4)],
-        description: 'Partly cloudy',
-        icon: '02d'
-      }));
+      const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`);
+      const data = await response.json();
 
-      setCurrentWeather(mockCurrentWeather);
-      setForecast(mockForecast);
+      if (response.ok) {
+        const weatherData: WeatherData = {
+          temperature: data.main.temp,
+          condition: data.weather[0].main,
+          description: data.weather[0].description,
+          humidity: data.main.humidity,
+          windSpeed: data.wind.speed,
+          icon: data.weather[0].icon,
+          location: data.name
+        };
+        setCurrentWeather(weatherData);
+
+        // Fetch forecast data
+        const forecastResponse = await fetch(`https://api.openweathermap.org/data/2.5/forecast/daily?lat=${lat}&lon=${lon}&cnt=7&appid=${apiKey}&units=metric`);
+        const forecastData = await forecastResponse.json();
+
+        if (forecastResponse.ok) {
+          const dailyForecast: WeatherForecast[] = forecastData.list.map((item: { dt: number; temp: { min: number; max: number; }; weather: { main: string; description: string; icon: string; }[]; }) => ({
+            date: new Date(item.dt * 1000).toISOString().split('T')[0],
+            temperature: {
+              min: item.temp.min,
+              max: item.temp.max
+            },
+            condition: item.weather[0].main,
+            description: item.weather[0].description,
+            icon: item.weather[0].icon
+          }));
+          setForecast(dailyForecast);
+        } else {
+          throw new Error(forecastData.message);
+        }
+      } else {
+        throw new Error(data.message);
+      }
     } catch (err) {
       setError('Failed to fetch weather data');
       console.error('Weather API error:', err);
@@ -115,7 +130,7 @@ export const useWeather = () => {
     }
   };
 
-  const getCurrentLocation = () => {
+  const getCurrentLocation = useCallback(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -131,11 +146,11 @@ export const useWeather = () => {
       // Use default location for demo
       fetchWeatherData(51.5074, -0.1278);
     }
-  };
+  }, []);
 
   useEffect(() => {
     getCurrentLocation();
-  }, []);
+  }, [getCurrentLocation]);
 
   return {
     currentWeather,
