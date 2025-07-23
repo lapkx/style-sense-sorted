@@ -6,6 +6,6 @@
 
 4)There should be a dark mode option
 
-5)Ai suggest sometimes does not even work even if it says generated 
+5)~~Ai suggest sometimes does not even work even if it says generated ~~ ✅
 
-6)When tried to remove the Ai generated outfit it says outfit has been removed but it still stays there.
+6)~~When tried to remove the Ai generated outfit it says outfit has been removed but it still stays there.~~ ✅
