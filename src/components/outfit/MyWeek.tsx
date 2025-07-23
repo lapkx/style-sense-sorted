@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Calendar, Sparkles, Plus, X, CloudSun } from 'lucide-react';
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
 import { ColorMatcher } from '@/utils/colorCombinations';
+import { OutfitCreator } from './OutfitCreator';
 
 interface ClothingItem {
   id: string;
@@ -42,6 +43,7 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
   const [clothingItems, setClothingItems] = useState<ClothingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [isCreatorOpen, setIsCreatorOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const { markOutfitAsWorn } = useOutfitTracking();
@@ -400,7 +402,10 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
                             variant="outline"
                             size="sm"
                             className="w-full"
-                            onClick={() => setSelectedDay(day)}
+                            onClick={() => {
+                              setSelectedDay(day);
+                              setIsCreatorOpen(true);
+                            }}
                           >
                             <Plus className="h-3 w-3 mr-1" />
                             Create
@@ -447,6 +452,15 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
           </Button>
         </div>
       </CardContent>
+      <OutfitCreator
+        isOpen={isCreatorOpen}
+        onClose={() => setIsCreatorOpen(false)}
+        date={selectedDay}
+        onOutfitCreated={() => {
+          fetchData();
+          setIsCreatorOpen(false);
+        }}
+      />
     </Card>
   );
 };
