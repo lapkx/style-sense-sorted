@@ -156,3 +156,16 @@ export {
   SelectScrollUpButton,
   SelectScrollDownButton,
 }
+
+export const SelectClearItem = React.forwardRef<
+  React.ElementRef<typeof SelectItem>,
+  React.ComponentPropsWithoutRef<typeof SelectItem>
+>(({ className, ...props }, ref) => (
+  <SelectItem
+    ref={ref}
+    className={cn("text-muted-foreground", className)}
+    {...props}
+    value=" "
+  />
+));
+SelectClearItem.displayName = "SelectClearItem";

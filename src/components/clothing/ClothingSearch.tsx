@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectClearItem } from '@/components/ui/select';
 import { MultiSelect, Option } from '@/components/ui/multi-select';
 import { Search, Filter, X, SortAsc, SortDesc } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -254,7 +254,7 @@ export const ClothingSearch = ({
                     <SelectValue placeholder="All categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All categories</SelectItem>
+                    <SelectClearItem>All categories</SelectClearItem>
                     {CATEGORIES.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
@@ -272,7 +272,7 @@ export const ClothingSearch = ({
                     <SelectValue placeholder="All brands" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All brands</SelectItem>
+                    <SelectClearItem>All brands</SelectClearItem>
                     {availableBrands.map((brand) => (
                       <SelectItem key={brand} value={brand}>
                         {brand}
@@ -290,7 +290,7 @@ export const ClothingSearch = ({
                     <SelectValue placeholder="All colors" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All colors</SelectItem>
+                    <SelectClearItem>All colors</SelectClearItem>
                     {availableColors.map((color) => (
                       <SelectItem key={color} value={color}>
                         {color}
