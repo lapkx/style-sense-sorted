@@ -61,6 +61,23 @@ const OCCASION_OPTIONS: Option[] = [
   { label: 'Other', value: 'Other' },
 ];
 
+const TEMPERATURE_OPTIONS: Option[] = [
+  { label: 'Very Cold (< 0°C)', value: 'very_cold' },
+  { label: 'Cold (0-10°C)', value: 'cold' },
+  { label: 'Cool (10-15°C)', value: 'cool' },
+  { label: 'Mild (15-20°C)', value: 'mild' },
+  { label: 'Warm (20-25°C)', value: 'warm' },
+  { label: 'Hot (> 25°C)', value: 'hot' },
+];
+
+const WEATHER_CONDITIONS_OPTIONS: Option[] = [
+  { label: 'Sunny', value: 'sunny' },
+  { label: 'Cloudy', value: 'cloudy' },
+  { label: 'Rainy', value: 'rainy' },
+  { label: 'Snowy', value: 'snowy' },
+  { label: 'Windy', value: 'windy' },
+];
+
 export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -74,6 +91,8 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
     color: '',
     seasons: [] as string[],
     occasions: [] as string[],
+    temperatureRange: '',
+    weatherConditions: [] as string[],
     notes: ''
   });
 
@@ -200,6 +219,8 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
           color: formData.color || null,
           seasons: formData.seasons.length > 0 ? formData.seasons : null,
           occasions: formData.occasions.length > 0 ? formData.occasions : null,
+          temperature_range: formData.temperatureRange || null,
+          weather_conditions: formData.weatherConditions.length > 0 ? formData.weatherConditions : null,
           notes: formData.notes || null,
           image_url: imageUrl
         });
@@ -222,6 +243,8 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
         color: '',
         seasons: [],
         occasions: [],
+        temperatureRange: '',
+        weatherConditions: [],
         notes: ''
       });
 
@@ -438,6 +461,36 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
                 selected={formData.occasions}
                 onChange={(selected) => setFormData({ ...formData, occasions: selected })}
                 placeholder="Select occasions..."
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="temperatureRange">Temperature Range</Label>
+              <Select
+                value={formData.temperatureRange}
+                onValueChange={(value) => setFormData({ ...formData, temperatureRange: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select temperature..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {TEMPERATURE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="weatherConditions">Weather Conditions</Label>
+              <MultiSelect
+                options={WEATHER_CONDITIONS_OPTIONS}
+                selected={formData.weatherConditions}
+                onChange={(selected) => setFormData({ ...formData, weatherConditions: selected })}
+                placeholder="Select weather types..."
               />
             </div>
           </div>

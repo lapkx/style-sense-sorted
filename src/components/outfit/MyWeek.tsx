@@ -4,9 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useOutfitTracking } from '@/hooks/useOutfitTracking';
+import { useWeather } from '@/hooks/useWeather';
+import { WeatherCard } from '@/components/weather/WeatherCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Calendar, Sparkles, Plus, X } from 'lucide-react';
+import { Calendar, Sparkles, Plus, X, CloudSun } from 'lucide-react';
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
 import { ColorMatcher } from '@/utils/colorCombinations';
 
@@ -17,6 +19,8 @@ interface ClothingItem {
   brand?: string;
   color?: string;
   image_url: string;
+  temperature_range?: string;
+  weather_conditions?: string[];
 }
 
 interface WeeklyOutfit {
@@ -41,6 +45,7 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { markOutfitAsWorn } = useOutfitTracking();
+  const { currentWeather, forecast, getTemperatureRange, getWeatherConditions } = useWeather();
 
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 }); // Monday
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -98,17 +103,46 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
 
   const generateAIOutfit = async (date: Date) => {
     try {
-      // Get current season and default occasion
-      const season = format(date, 'MMM'); // Basic season detection
-      const occasion = 'Casual'; // Default to casual
+      // Get weather-based parameters
+      const season = format(date, 'MMM');
+      const occasion = 'Casual';
+      
+      // Get weather forecast for the selected date or current weather
+      const forecastForDate = forecast.find(f => f.date === format(date, 'yyyy-MM-dd'));
+      const weatherForDay = forecastForDate || currentWeather;
+      
+      // Determine temperature range and weather conditions for filtering
+      let targetTempRange = '';
+      let targetWeatherConditions: string[] = [];
+      
+      if (weatherForDay) {
+        const temp = 'temperature' in weatherForDay ? 
+          weatherForDay.temperature : 
+          (weatherForDay as any).temperature?.max || 20; // fallback to 20°C
+        targetTempRange = getTemperatureRange(temp);
+        targetWeatherConditions = getWeatherConditions(weatherForDay.condition);
+      }
 
-      // Enhanced AI logic with color matching
-      const categories = ['T-Shirts', 'Shirts', 'Pants', 'Jeans', 'Shoes', 'Sneakers'];
+      // Filter clothing items based on weather suitability
+      const weatherSuitableItems = clothingItems.filter(item => {
+        // If item has no weather data, include it (assume suitable for all weather)
+        if (!item.temperature_range && !item.weather_conditions?.length) return true;
+        
+        // Check temperature suitability
+        const tempSuitable = !item.temperature_range || item.temperature_range === targetTempRange;
+        
+        // Check weather condition suitability
+        const weatherSuitable = !item.weather_conditions?.length || 
+          item.weather_conditions.some(condition => targetWeatherConditions.includes(condition));
+        
+        return tempSuitable && weatherSuitable;
+      });
+
       const selectedItems: ClothingItem[] = [];
       
-      // Step 1: Pick a base item (top)
+      // Step 1: Pick a base item (top) that's weather-appropriate
       const topCategories = ['T-Shirts', 'Shirts'];
-      const availableTops = clothingItems.filter(item => 
+      const availableTops = weatherSuitableItems.filter(item => 
         topCategories.includes(item.category)
       );
       
@@ -116,9 +150,9 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
         const baseTop = availableTops[Math.floor(Math.random() * availableTops.length)];
         selectedItems.push(baseTop);
         
-        // Step 2: Find compatible bottom based on color
+        // Step 2: Find compatible bottom based on color and weather
         const bottomCategories = ['Pants', 'Jeans', 'Shorts'];
-        const availableBottoms = clothingItems.filter(item => 
+        const availableBottoms = weatherSuitableItems.filter(item => 
           bottomCategories.includes(item.category)
         );
         
@@ -134,9 +168,9 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
           selectedItems.push(bottom);
         }
         
-        // Step 3: Add shoes that work with the outfit
+        // Step 3: Add shoes that work with the outfit and weather
         const shoeCategories = ['Shoes', 'Sneakers', 'Boots'];
-        const availableShoes = clothingItems.filter(item => 
+        const availableShoes = weatherSuitableItems.filter(item => 
           shoeCategories.includes(item.category)
         );
         
@@ -169,11 +203,13 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
       const colorScore = ColorMatcher.scoreOutfitColors(colors, occasion, season);
       
       const itemIds = selectedItems.map(item => item.id);
-      await saveOutfit(date, itemIds, `AI-generated outfit (Color harmony: ${colorScore}%)`, true);
+      const weatherNote = weatherForDay ? `Weather-appropriate for ${weatherForDay.condition} (${targetTempRange.replace('_', ' ')})` : '';
+      const notes = `AI-generated outfit (Color harmony: ${colorScore}%)${weatherNote ? ` - ${weatherNote}` : ''}`;
+      await saveOutfit(date, itemIds, notes, true);
       
       toast({
         title: "AI Outfit Generated!",
-        description: `A stylish outfit with ${colorScore}% color harmony has been created for you.`,
+        description: `Weather-appropriate outfit with ${colorScore}% color harmony created for ${weatherForDay?.condition || 'today'}.`,
       });
     } catch (error: any) {
       toast({
@@ -264,6 +300,17 @@ export const MyWeek = ({ onClose }: MyWeekProps) => {
         </div>
       </CardHeader>
       <CardContent>
+        {/* Current Weather Display */}
+        {currentWeather && (
+          <div className="mb-6">
+            <div className="flex items-center space-x-2 mb-3">
+              <CloudSun className="h-4 w-4" />
+              <span className="text-sm font-medium">Today's Weather</span>
+            </div>
+            <WeatherCard weather={currentWeather} className="max-w-md" />
+          </div>
+        )}
+        
         <div className="grid grid-cols-7 gap-4">
           {weekDays.map((day, index) => {
             const dayName = format(day, 'EEE');

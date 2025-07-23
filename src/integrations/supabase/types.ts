@@ -26,8 +26,10 @@ export type Database = {
           notes: string | null
           occasions: string[] | null
           seasons: string[] | null
+          temperature_range: string | null
           updated_at: string
           user_id: string
+          weather_conditions: string[] | null
         }
         Insert: {
           brand?: string | null
@@ -40,8 +42,10 @@ export type Database = {
           notes?: string | null
           occasions?: string[] | null
           seasons?: string[] | null
+          temperature_range?: string | null
           updated_at?: string
           user_id: string
+          weather_conditions?: string[] | null
         }
         Update: {
           brand?: string | null
@@ -54,8 +58,10 @@ export type Database = {
           notes?: string | null
           occasions?: string[] | null
           seasons?: string[] | null
+          temperature_range?: string | null
           updated_at?: string
           user_id?: string
+          weather_conditions?: string[] | null
         }
         Relationships: []
       }
