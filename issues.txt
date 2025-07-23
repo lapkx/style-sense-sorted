@@ -1,4 +1,4 @@
-1) After rating an item in Analytics, and if clicked on again to change the rating it gives the error of "Error: Failed to rate outfit"
+1) ~~After rating an item in Analytics, and if clicked on again to change the rating it gives the error of "Error: Failed to rate outfit"~~ ✅
 
 2) The pictures are not proper, when uploaded a picture of sweatpants it looks half and not full
 
