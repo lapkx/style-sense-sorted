@@ -5,7 +5,6 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ClothingGrid } from '@/components/clothing/ClothingGrid';
-import { ClothingSearch } from '@/components/clothing/ClothingSearch';
 
 interface ClothingItem {
   id: string;
@@ -109,7 +108,11 @@ export const OutfitCreator = ({ isOpen, onClose, date, onOutfitCreated }: Outfit
           <DialogTitle>Create Outfit for {date ? date.toLocaleDateString() : ''}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <ClothingSearch onSearch={setSearchTerm} />
+          <Input
+            placeholder="Search items..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <div className="max-h-[50vh] overflow-y-auto">
             <ClothingGrid
               items={filteredItems}
