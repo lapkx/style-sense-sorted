@@ -120,9 +120,12 @@ export default function OutfitAnalytics({ onClose }: OutfitAnalyticsProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      const existingRating = ratings.find(r => r.outfit_id === outfitId);
+
       const { error } = await supabase
         .from('outfit_ratings')
         .upsert({
+          id: existingRating?.id,
           user_id: user.id,
           outfit_id: outfitId,
           rating,
@@ -132,7 +135,7 @@ export default function OutfitAnalytics({ onClose }: OutfitAnalyticsProps) {
 
       toast({
         title: "Success",
-        description: "Outfit rated successfully",
+        description: "Outfit rating updated successfully",
       });
 
       fetchAnalyticsData();
@@ -140,7 +143,7 @@ export default function OutfitAnalytics({ onClose }: OutfitAnalyticsProps) {
       console.error('Error rating outfit:', error);
       toast({
         title: "Error",
-        description: "Failed to rate outfit",
+        description: "Failed to update outfit rating",
         variant: "destructive",
       });
     }
