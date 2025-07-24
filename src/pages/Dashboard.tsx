@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Calendar, BarChart3 } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { ClothingUpload } from '@/components/clothing/ClothingUpload';
-import { ClothingGrid } from '@/components/clothing/ClothingGrid';
+import { MyCloset } from '@/components/clothing/MyCloset';
 import { MyWeek } from '@/components/outfit/MyWeek';
 import OutfitAnalytics from '@/components/analytics/OutfitAnalytics';
 
@@ -55,7 +55,7 @@ const Dashboard = () => {
             </TabsList>
             
             <TabsContent value="closet" className="space-y-4">
-              <ClothingGrid 
+              <MyCloset 
                 refreshTrigger={refreshTrigger}
               />
             </TabsContent>

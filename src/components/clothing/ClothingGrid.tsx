@@ -15,9 +15,10 @@ interface ClothingGridProps {
   loading: boolean;
   selectedItems?: string[];
   onSelectItem?: (id: string) => void;
+  refreshTrigger?: number;
 }
 
-export const ClothingGrid = ({ items, loading, selectedItems, onSelectItem }: ClothingGridProps) => {
+export const ClothingGrid = ({ items, loading, selectedItems, onSelectItem, refreshTrigger }: ClothingGridProps) => {
   const [deleteDialogItem, setDeleteDialogItem] = useState<{id: string, imageUrl: string} | null>(null);
   const [editItem, setEditItem] = useState<any | null>(null);
   const { toast } = useToast();

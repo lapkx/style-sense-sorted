@@ -254,7 +254,7 @@ export const ClothingSearch = ({
                     <SelectValue placeholder="All categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectClearItem>All categories</SelectClearItem>
+                    <SelectClearItem value="">All categories</SelectClearItem>
                     {CATEGORIES.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
@@ -272,7 +272,7 @@ export const ClothingSearch = ({
                     <SelectValue placeholder="All brands" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectClearItem>All brands</SelectClearItem>
+                    <SelectClearItem value="">All brands</SelectClearItem>
                     {availableBrands.map((brand) => (
                       <SelectItem key={brand} value={brand}>
                         {brand}
@@ -290,7 +290,7 @@ export const ClothingSearch = ({
                     <SelectValue placeholder="All colors" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectClearItem>All colors</SelectClearItem>
+                    <SelectClearItem value="">All colors</SelectClearItem>
                     {availableColors.map((color) => (
                       <SelectItem key={color} value={color}>
                         {color}
