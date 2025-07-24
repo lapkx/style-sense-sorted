@@ -17,50 +17,62 @@ export type Database = {
       clothing_items: {
         Row: {
           brand: string | null
+          care_instructions: string | null
           category: string
           color: string | null
           created_at: string
           id: string
           image_url: string
+          last_washed: string | null
           name: string
+          needs_washing: boolean | null
           notes: string | null
           occasions: string[] | null
           seasons: string[] | null
           temperature_range: string | null
           updated_at: string
           user_id: string
+          wash_frequency_days: number | null
           weather_conditions: string[] | null
         }
         Insert: {
           brand?: string | null
+          care_instructions?: string | null
           category: string
           color?: string | null
           created_at?: string
           id?: string
           image_url: string
+          last_washed?: string | null
           name: string
+          needs_washing?: boolean | null
           notes?: string | null
           occasions?: string[] | null
           seasons?: string[] | null
           temperature_range?: string | null
           updated_at?: string
           user_id: string
+          wash_frequency_days?: number | null
           weather_conditions?: string[] | null
         }
         Update: {
           brand?: string | null
+          care_instructions?: string | null
           category?: string
           color?: string | null
           created_at?: string
           id?: string
           image_url?: string
+          last_washed?: string | null
           name?: string
+          needs_washing?: boolean | null
           notes?: string | null
           occasions?: string[] | null
           seasons?: string[] | null
           temperature_range?: string | null
           updated_at?: string
           user_id?: string
+          wash_frequency_days?: number | null
           weather_conditions?: string[] | null
         }
         Relationships: []
@@ -102,6 +114,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      laundry_schedule: {
+        Row: {
+          clothing_item_ids: string[]
+          created_at: string
+          id: string
+          notes: string | null
+          scheduled_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clothing_item_ids?: string[]
+          created_at?: string
+          id?: string
+          notes?: string | null
+          scheduled_date: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clothing_item_ids?: string[]
+          created_at?: string
+          id?: string
+          notes?: string | null
+          scheduled_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       outfit_history: {
         Row: {
