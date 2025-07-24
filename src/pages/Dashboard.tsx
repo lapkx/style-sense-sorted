@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Calendar, BarChart3 } from 'lucide-react';
+import { Plus, Calendar, BarChart3, Droplets } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { ClothingUpload } from '@/components/clothing/ClothingUpload';
 import { MyCloset } from '@/components/clothing/MyCloset';
 import { MyWeek } from '@/components/outfit/MyWeek';
 import OutfitAnalytics from '@/components/analytics/OutfitAnalytics';
+import { LaundryTracker } from '@/components/laundry/LaundryTracker';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('closet');
@@ -20,6 +21,14 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Your Virtual Closet</h1>
             <div className="flex items-center space-x-3">
+              <Button 
+                variant="outline"
+                onClick={() => setActiveTab('laundry')}
+                className="flex items-center space-x-2"
+              >
+                <Droplets className="h-4 w-4" />
+                <span>Laundry</span>
+              </Button>
               <Button 
                 variant="outline"
                 onClick={() => setActiveTab('analytics')}
@@ -47,9 +56,10 @@ const Dashboard = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="closet">My Closet</TabsTrigger>
               <TabsTrigger value="week">My Week</TabsTrigger>
+              <TabsTrigger value="laundry">Laundry</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="upload">Add Item</TabsTrigger>
             </TabsList>
@@ -62,6 +72,10 @@ const Dashboard = () => {
 
             <TabsContent value="week" className="space-y-4">
               <MyWeek />
+            </TabsContent>
+
+            <TabsContent value="laundry" className="space-y-4">
+              <LaundryTracker />
             </TabsContent>
 
             <TabsContent value="analytics" className="space-y-4">

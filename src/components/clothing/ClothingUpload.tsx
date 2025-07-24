@@ -93,7 +93,9 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
     occasions: [] as string[],
     temperatureRange: '',
     weatherConditions: [] as string[],
-    notes: ''
+    notes: '',
+    washFrequency: 7,
+    careInstructions: ''
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -222,6 +224,8 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
           temperature_range: formData.temperatureRange || null,
           weather_conditions: formData.weatherConditions.length > 0 ? formData.weatherConditions : null,
           notes: formData.notes || null,
+          wash_frequency_days: formData.washFrequency,
+          care_instructions: formData.careInstructions || null,
           image_url: imageUrl
         });
 
@@ -245,7 +249,9 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
         occasions: [],
         temperatureRange: '',
         weatherConditions: [],
-        notes: ''
+        notes: '',
+        washFrequency: 7,
+        careInstructions: ''
       });
 
       onUploadComplete?.();
@@ -491,6 +497,31 @@ export const ClothingUpload = ({ onUploadComplete }: ClothingUploadProps) => {
                 selected={formData.weatherConditions}
                 onChange={(selected) => setFormData({ ...formData, weatherConditions: selected })}
                 placeholder="Select weather types..."
+              />
+            </div>
+          </div>
+
+          {/* Care Instructions */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="wash-frequency">Wash Frequency (days)</Label>
+              <Input
+                id="wash-frequency"
+                type="number"
+                min="1"
+                max="365"
+                value={formData.washFrequency}
+                onChange={(e) => setFormData({ ...formData, washFrequency: parseInt(e.target.value) || 7 })}
+                placeholder="7"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="care-instructions">Care Instructions</Label>
+              <Input
+                id="care-instructions"
+                value={formData.careInstructions}
+                onChange={(e) => setFormData({ ...formData, careInstructions: e.target.value })}
+                placeholder="e.g., Cold wash, hang dry"
               />
             </div>
           </div>

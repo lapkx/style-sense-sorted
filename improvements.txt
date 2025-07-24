@@ -29,11 +29,11 @@
    - Automatic outfit suggestions for meetings, dates, casual days
    - Event-specific outfit history
 
-9) **Laundry & Care Tracker**
-   - Track when items were last washed
-   - Care instruction reminders
-   - "Needs washing" status for items
-   - Laundry scheduling suggestions
+9) ~~**Laundry & Care Tracker**~~ ✅
+   - ~~Track when items were last washed~~ ✅
+   - ~~Care instruction reminders~~ ✅
+   - ~~"Needs washing" status for items~~ ✅
+   - ~~Laundry scheduling suggestions~~ ✅
 
 10) **Outfit Photos & Reality Check**
     - Take photos of complete outfits
