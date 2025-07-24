@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Trash2, Edit } from 'lucide-react';
+import { Trash2, Edit, Shirt } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -16,9 +16,10 @@ interface ClothingGridProps {
   selectedItems?: string[];
   onSelectItem?: (id: string) => void;
   refreshTrigger?: number;
+  onMarkAsDirty?: (id: string) => void;
 }
 
-export const ClothingGrid = ({ items, loading, selectedItems, onSelectItem, refreshTrigger }: ClothingGridProps) => {
+export const ClothingGrid = ({ items, loading, selectedItems, onSelectItem, refreshTrigger, onMarkAsDirty }: ClothingGridProps) => {
   const [deleteDialogItem, setDeleteDialogItem] = useState<{id: string, imageUrl: string} | null>(null);
   const [editItem, setEditItem] = useState<any | null>(null);
   const { toast } = useToast();
@@ -141,10 +142,23 @@ export const ClothingGrid = ({ items, loading, selectedItems, onSelectItem, refr
                 {item.color && <p>Color: {item.color}</p>}
               </div>
             </CardContent>
-            <CardFooter className="p-4 pt-0">
+            <CardFooter className="p-4 pt-0 flex justify-between items-center">
               <Badge variant="secondary" className="text-xs">
                 {item.category}
               </Badge>
+              {onMarkAsDirty && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMarkAsDirty(item.id);
+                  }}
+                  title="Mark as Dirty"
+                >
+                  <Shirt className="h-4 w-4" />
+                </Button>
+              )}
             </CardFooter>
           </Card>
         ))}

@@ -1,6 +1,7 @@
 import { ClothingGrid } from './ClothingGrid';
 import { ClothingSearch } from './ClothingSearch';
 import { useClothingSearch } from '@/hooks/useClothingSearch';
+import { useLaundryManagement } from '@/hooks/useLaundryManagement';
 
 interface MyClosetProps {
   refreshTrigger?: number;
@@ -16,6 +17,7 @@ export const MyCloset = ({ refreshTrigger }: MyClosetProps) => {
     availableColors,
     isLoading
   } = useClothingSearch();
+  const { markAsDirty, isUpdating } = useLaundryManagement();
 
   return (
     <div className="space-y-6">
@@ -28,8 +30,9 @@ export const MyCloset = ({ refreshTrigger }: MyClosetProps) => {
       />
       <ClothingGrid
         items={filteredItems}
-        loading={isLoading}
+        loading={isLoading || isUpdating}
         refreshTrigger={refreshTrigger}
+        onMarkAsDirty={markAsDirty}
       />
     </div>
   );
