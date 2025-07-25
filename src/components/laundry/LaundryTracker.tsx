@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,63 +35,49 @@ interface LaundrySession {
 }
 
 export const LaundryTracker = () => {
-  const [items, setItems] = useState<ClothingItem[]>([]);
-  const [laundrySession, setLaundrySession] = useState<LaundrySession[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showCreateSession, setShowCreateSession] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [sessionNotes, setSessionNotes] = useState('');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      // Fetch clothing items that need washing
-      const { data: itemsData, error: itemsError } = await supabase
+  const { data: items = [], isLoading: isLoadingItems } = useQuery<ClothingItem[]>({
+    queryKey: ['laundry-items', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('clothing_items')
         .select('id, name, image_url, last_washed, needs_washing, wash_frequency_days, care_instructions')
-        .eq('user_id', user?.id)
+        .eq('user_id', user!.id)
         .eq('needs_washing', true);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user,
+  });
 
-      if (itemsError) throw itemsError;
-
-      // Fetch laundry sessions
-      const { data: sessionsData, error: sessionsError } = await supabase
+  const { data: laundrySession = [], isLoading: isLoadingSessions } = useQuery<LaundrySession[]>({
+    queryKey: ['laundry-sessions', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('laundry_schedule')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user!.id)
         .order('scheduled_date', { ascending: true });
-
-      if (sessionsError) throw sessionsError;
-
-      setItems(itemsData || []);
-      setLaundrySession(sessionsData as LaundrySession[] || []);
-    } catch (error: any) {
-      toast({
-        title: "Error fetching data",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user,
+  });
 
   const markAsWashed = async (itemId: string) => {
     try {
       const { error } = await supabase
         .from('clothing_items')
-        .update({ 
+        .update({
           last_washed: new Date().toISOString().split('T')[0],
-          needs_washing: false 
+          needs_washing: false
         })
         .eq('id', itemId);
 
@@ -100,8 +87,8 @@ export const LaundryTracker = () => {
         title: "Item marked as clean",
         description: "The item has been updated.",
       });
-      
-      fetchData();
+
+      queryClient.invalidateQueries({ queryKey: ['laundry-items', user?.id] });
     } catch (error: any) {
       toast({
         title: "Error updating item",
@@ -143,7 +130,7 @@ export const LaundryTracker = () => {
       setSelectedDate(undefined);
       setSessionNotes('');
       setSelectedItems([]);
-      fetchData();
+      queryClient.invalidateQueries({ queryKey: ['laundry-sessions', user?.id] });
     } catch (error: any) {
       toast({
         title: "Error creating session",
@@ -168,9 +155,9 @@ export const LaundryTracker = () => {
         if (session) {
           const { error: updateError } = await supabase
             .from('clothing_items')
-            .update({ 
+            .update({
               last_washed: new Date().toISOString().split('T')[0],
-              needs_washing: false 
+              needs_washing: false
             })
             .in('id', session.clothing_item_ids);
 
@@ -182,8 +169,9 @@ export const LaundryTracker = () => {
         title: "Session updated",
         description: `Laundry session marked as ${status}.`,
       });
-      
-      fetchData();
+
+      queryClient.invalidateQueries({ queryKey: ['laundry-sessions', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['laundry-items', user?.id] });
     } catch (error: any) {
       toast({
         title: "Error updating session",
@@ -193,7 +181,7 @@ export const LaundryTracker = () => {
     }
   };
 
-  if (loading) {
+  if (isLoadingItems || isLoadingSessions) {
     return <div className="flex justify-center p-4">Loading...</div>;
   }
 
