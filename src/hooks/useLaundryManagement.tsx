@@ -19,6 +19,7 @@ export const useLaundryManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clothing-items'] });
+      queryClient.invalidateQueries({ queryKey: ['laundry-items'] });
       toast({
         title: 'Success',
         description: 'Item updated successfully.',
